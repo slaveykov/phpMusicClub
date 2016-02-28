@@ -6,7 +6,6 @@ class Home extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		
 		$this->load->model(array('categories','playlist','songs'));
 		$this->load->helper(array('date','url'));
 		$this->load->database();
