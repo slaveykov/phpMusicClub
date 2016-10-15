@@ -3,6 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Home extends CI_Controller {
 	
+	//HOMEPAGE
+	
 	public function __construct()
 	{
 		parent::__construct();
@@ -16,6 +18,7 @@ class Home extends CI_Controller {
 		
 		$data['categories'] = $this->categories->getCategories();
 		$this->load->view("home", $data);
+		
 	}
 	public function category($cat_id){
 		$data = array();
