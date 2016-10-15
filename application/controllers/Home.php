@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Home extends CI_Controller {
 	
-	//HOMEPAGE1
+	//HOMEPAGE12
 	
 	public function __construct()
 	{
