@@ -4,7 +4,7 @@
 	}
 	body {
 		
-	  background:url("/img/bg.png") #000 no-repeat center center fixed; 
+	  background:url("../img/bg.png") #000 no-repeat center center fixed; 
 	  color: #FFF;
 	  font-size: 12px;
 	}

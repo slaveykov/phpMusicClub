@@ -1,5 +1,18 @@
 RewriteEngine on
+
+IndexOptions +Charset=UTF-8
+AddDefaultCharset UTF-8
+
+AddCharset utf-8 .html .css .php .txt .js
+
+RewriteBase /phpmusicclub/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond $1 !^(index\.php|css|js|images|robots\.txt)
-RewriteRule ^(.*)$ index.php?$1 [L]
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+
+<IfModule mod_php5.c>
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value max_execution_time 300
+</IfModule>

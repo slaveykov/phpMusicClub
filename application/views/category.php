@@ -7,6 +7,7 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
+    <base href="<?php echo base_url();?>">
     <title><?php echo base_url();?></title>
 	<link href='http://fonts.googleapis.com/css?family=Orbitron:400,700|Devonshire|Open+Sans|Open+Sans+Condensed:700' rel='stylesheet' type='text/css'>
     <link href="<?php echo base_url();?>css/bootstrap.min.css" rel="stylesheet">
@@ -16,10 +17,10 @@
     <div class="container">
 	  <div class="header">
       <div class="row">
-	  <div class="col-md-6">
+	  <div class="col-md-4">
 	  <img src="<?php echo base_url();?>/img/logo.png" class="logo" />
 	  </div> 
-	   <div class="col-md-6">
+	   <div class="col-md-8">
 		<nav class="pull-right">
 		<ul id="menu">
 		<?php
@@ -41,7 +42,7 @@
 	  <div class="opacity_cont">
 	  <div class="row">
 	  <div class="col-md-12">
-	   <iframe src="http://www.youtube.com/embed/<?php echo $song_now['youtube_id'];?>?start=<?php echo $time_to_start;?>&autoplay=1" style="width:100%;height:300px;" frameborder="0" allowfullscreen></iframe>
+	   <iframe src="http://www.youtube.com/embed/<?php echo $song_now['youtube_id'];?>?start=<?php echo $time_to_start;?>&autoplay=1" style="width:100%;height:500px;" frameborder="0" allowfullscreen></iframe>
 	   <h2>DJ Playlist</h2>
 	   <table class="table">
 	   <tr>
@@ -53,7 +54,7 @@
 	   </tr>
 	   <?php
 	   $i=1;
-	   foreach ($playlist as $song){
+	   foreach ($playlist as $song){ 
 		?>
 		<tr>
 		<td><?php echo $i++;?></td>
