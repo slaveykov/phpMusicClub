@@ -126,4 +126,4 @@ $autoload['language'] = array();
 |
 |	$autoload['model'] = array('first_model' => 'first');
 */
-$autoload['model'] = array('categories','playlist','songs');
+$autoload['model'] = array('categories_model','playlist_model','songs_model');
