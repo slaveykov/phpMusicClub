@@ -7,57 +7,140 @@ class Playlist extends CI_Controller {
 		parent::__construct();
 		$this->load->helper(array('date','url'));
 		$this->load->database();
-	
 	}
+
 	public function index(){
-		
+		echo date("Y-m-d H:i:s", strtotime('-10 hours', time()));
 	}
 	
-	public function MoveSong(){ //$song_id, $cat_id
+	private function array_swap(&$array,$swap_a,$swap_b){
 		
+		if(isset($array[$swap_b]) && isset($array[$swap_a])){
+			list($array[$swap_a],$array[$swap_b]) = array($array[$swap_b],$array[$swap_a]);
+		}
+
+	}
+
+	public function MoveSong(){
+
+		$song_position 	= 1;
+		$song_id 		= 5;
+		$cat_id			= 1;
+
+		$MoveSong = $this->MoveSongToPosition($song_id, $cat_id, $song_position);
+
+		print_r($MoveSong); exit;
+
+	}
+
+	public function MoveSongToPosition($song_id, $cat_id, $song_position){
+
 		/*
-		 План за реализация на скрипта.
-		1.Събираме списъка с всички песни от списъка на категорията.
-		2.Номерираме подредбата на всички песни от списъка.
-		3.Декларираме желаната позиция с цифра на посочената песен.
-		4.Правим нова подредба на списъка с песни. От по-малко към по-голямо.
-		5.Оправяме времената на песните с новата подредба.
+			План за реализация на скрипта.
+			1.Събираме списъка с всички песни от списъка на категорията.
+			2.Номерираме подредбата на всички песни от списъка.
+			3.Декларираме желаната позиция с цифра на посочената песен.
+			4.Правим нова подредба на списъка с песни. От по-малко към по-голямо.
+			5.Оправяме времената на песните с новата подредба.
 			
-		Ако желната песен е с позиция 3, старата песен с позиция 3 я местим на позиция 4.
+			Ако желната песен е с позиция 3, старата песен с позиция 3 я местим на позиция 4.
 		*/
+		/*
+			$song_position 	= 0;
+			$song_id 		= 0;
+			$cat_id			= 0;
+		*/
+
+		$oldList = array();
+		$playlist = $this->playlist_model->getPlaylist($cat_id);
 		
-		$song_position 	= 3;
-		$song_id 		= 13;
-		$cat_id			= 10;
-		
-		$songs = array();
-		$i_songs = 1;
+		if(empty($playlist)) return array("error"=>"Playlist is empty.");
+
+		$songNow = $this->playlist_model->getSongNow($cat_id);
+
 		foreach($this->playlist_model->getPlaylist($cat_id) as $key=>$playlist){
+			
 			$songDetails = $this->songs_model->getSong($playlist->song_id);
-			echo $songDetails['name']."<br />";
-			$songDetails['position'] = $i_songs;
-			$songs[] = $songDetails;
-			$i_songs++;
+			
+			if($songNow['song_id'] == $songDetails['id']){
+				$songDetails['song_now'] = true;
+			}else{
+				$songDetails['song_now'] = false;
+			}
+
+			$oldList[] = $songDetails;
+		}
+
+		if($song_position > sizeof($oldList)){
+			return array("error"=>"Song cant be moved.");
+		}
+
+		$song_position = $song_position - 1;
+
+		foreach($oldList as $k=>$f){
+			if($f['song_now']==true){
+				if($k==$song_position){
+					return array("error"=>"The song cant be moved on this position because this position is play now.");
+					break;
+				}
+			}
+			echo $k . '-'.$f['name'].'id-'.$f['id'].'<br />';
 		}
 		
-		$new_songs = array();
-		$i_songs = 1;
-		foreach($songs as $song){
-			if($song['position'] == $song_position){
-				$new_songs[$song_position + 1] = $song;
+		echo '<hr />';  
+		
+		$now_position = 0;
+		foreach($oldList as $pos=>$song){
+			if($song['id']==$song_id){
+				$now_position = $pos;
+				break;
 			}
-			if($song['position'] < $song_position){
-				$new_songs[$i_songs] = $song;
-			}
-			if($song['id'] == $song_id){
-				$new_songs[$song_position] = $song;
-				//unset($new_songs[$song['position']]);
-			}
-			$i_songs++;
 		}
-		echo $i_songs;
-		ksort($new_songs);
-		var_dump($new_songs);
+		
+		$newList = $oldList;
+		
+		if($song_position==$now_position){
+			//Ако желаната позицията на песента е същата като сегашната и позиция
+			return array("error"=>"The song position is ident then now.");
+		}elseif($song_position < $now_position){
+			//Ако желаната позицията на песента е по-ниска от сегашната и позиция
+			$operation = "minus";
+
+		}elseif($song_position > $now_position){
+			//Ако желаната позицията на песента е по-висока от сегашната и позиция
+			$operation = "plus";
+		}
+
+		$i = 0;
+		while(true){
+
+			if($i >= sizeof($newList)) break;
+
+			if($i==0){
+				if($operation=="plus"){
+					$this->array_swap($newList, $now_position, $now_position + 1);
+				}elseif($operation=="minus"){
+					$this->array_swap($newList, $now_position, $now_position - 1);
+				}
+			}else{
+				if($operation=="plus"){
+					$this->array_swap($newList, $now_position+$i,$now_position + $i + 1);
+				}elseif($operation=="minus"){
+					$this->array_swap($newList, $now_position-$i,$now_position - $i - 1);
+				}
+			}
+				
+			if($newList[$song_position] == $oldList[$now_position]) break;
+				
+			$i++;
+		}
+
+		foreach($newList as $k=>$f){
+			echo $k . '-'.$f['name'].'<br />';
+		}
+
+		return array("success"=>true,"playlist"=>$newList);
+	
 	}
 	
 	public function SongsONQueue(){
@@ -66,13 +149,17 @@ class Playlist extends CI_Controller {
 			
 			$cat_id = (int) $_POST['cat_id'];
 			
-			foreach($this->playlist_model->getPlaylist($cat_id) as $key=>$playlist){
-				$data['playlist'][$key]['song_data'] = $this->songs_model->getSong($playlist->song_id);
-				$data['playlist'][$key]['song_data']['playlist_id'] = $playlist->id;
-				$data['playlist'][$key]['start'] = mdate("%G:%i:%s %A",$playlist->time_to_start);
-				$data['playlist'][$key]['finish'] =  mdate("%G:%i:%s %A",$playlist->time_to_finish);
-			}
+			$playlist = $this->playlist_model->getPlaylist($cat_id);
 			
+			if(!empty($playlist)){
+				foreach($this->playlist_model->getPlaylist($cat_id) as $key=>$playlist){
+					$data['playlist'][$key]['song_data'] = $this->songs_model->getSong($playlist->song_id);
+					$data['playlist'][$key]['song_data']['playlist_id'] = $playlist->id;
+					$data['playlist'][$key]['start'] = mdate("%G:%i:%s %A",$playlist->time_to_start);
+					$data['playlist'][$key]['finish'] =  mdate("%G:%i:%s %A",$playlist->time_to_finish);
+				}
+			}
+
 			$songNowId = $this->playlist_model->getSongNow($cat_id);
 			
 			$data['song_now'] = $this->songs_model->getSong($songNowId['song_id']);
